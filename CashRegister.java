@@ -1,7 +1,5 @@
 package agnes;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 /*Cash Register program calculates number of bills in each denomination
@@ -11,12 +9,13 @@ public class CashRegister {
 	 static int[] moneyValue = {20, 10, 5, 2, 1};
 	 static int[] moneyQty = new int[5];
 	 int registerTotal = 0;
-	 static int moneyLeft = 0;
+	 
+
+	static int moneyLeft = 0;
 
 	public static void main(String[] args) throws IOException {
 		
-		 BufferedReader reader = new BufferedReader (new InputStreamReader(System.in));
-		 Scanner scanner = new Scanner (System.in);
+		Scanner scanner = new Scanner (System.in);
 		 
 		System.out.print("Please enter number of bills for each denomination (#$20 #$10 #$5 #$2 #$1) : ");
 		
@@ -105,7 +104,12 @@ public class CashRegister {
 		if(action.contains("change")) { 
 			
 			int first = scan.nextInt();
-			getChange(first);
+			//check to see if we have enough money in the register
+			if(registerTotal() > first) {
+				getChange(first);
+			} else {
+				exitMessageForNegativeNumber();
+			}
 			
 		}	
 	}
@@ -124,27 +128,25 @@ public class CashRegister {
 	 * @param passedMoneyQty
 	 * @return
 	 */
-	private static int registerTotal(int[] passedMoneyValue, int[] passedMoneyQty) {
+	private static void registerTotal(int[] passedMoneyValue, int[] passedMoneyQty) {
 		
-		int registerTotal = 0;
+		int registerTotalValue = 0;
 		
 		for(int i=0; i <5; i++) {
-			registerTotal += passedMoneyValue[i]*passedMoneyQty[i];
+			registerTotalValue += passedMoneyValue[i]*passedMoneyQty[i];
 			
 		}
 
-		System.out.println("Total $" + registerTotal);
+		
+		System.out.println("Total $" + registerTotalValue);
 		System.out.print(passedMoneyQty[0] +" " );
 		System.out.print(passedMoneyQty[1] +" ");
 		System.out.print(passedMoneyQty[2] +" ");
 		System.out.print(passedMoneyQty[3] +" ");
 		System.out.print(passedMoneyQty[4] +" ");
 		System.out.println(" ");
-		return registerTotal;
 		
 	}
-	
-	
 	
 	 /**
 	 * getChange 
@@ -167,6 +169,20 @@ public class CashRegister {
 				 
 				 if (currTotal<=change) {
 					 int modChange = change%currTotal;
+					 
+					 if(modChange > moneyValue[j+1] && (moneyValue[j+1]*moneyQty[j+1]) >= change) {
+						 while(change >0 && moneyper >0) {
+						 currTotal = moneyValue[j+1];
+						 denominatioTotal = moneyQty[j+1];
+						 moneyper = currTotal * denominatioTotal;
+						 change = change - currTotal;
+						 moneyper = moneyper-currTotal;
+						 
+						 moneyQty[j+1] = moneyQty[j+1]-1;
+						 modChange = change%currTotal;
+						 }
+						 
+					 }
 					 
 					 while(modChange != 1 && change >0 && moneyQty[j] >0 ) {
 						 change = change- currTotal;
@@ -200,7 +216,15 @@ public class CashRegister {
 		 }
 	
 	
-	
+	public static int registerTotal() {
+		int total = 0;
+		for(int i=0; i <5; i++) {
+			total += moneyQty[i]*moneyValue[i];
+			
+		}
+		
+		return total;
+	}
 	
 
 }
